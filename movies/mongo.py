@@ -42,10 +42,13 @@ def create_vector_index(database, collection, path, index):
     }
 )
 
-
-def find_query(database, collection, query, projection=None):
+def count_documents(database, collection, query):
   coll = client[database][collection]
-  return coll.find(query, projection)
+  return coll.count_documents(query)
+
+def find_query(database, collection, query, projection=None, limit=10, skip=0):
+  coll = client[database][collection]
+  return coll.find(query, projection, limit=limit, skip=skip)
 
 
 
@@ -54,7 +57,7 @@ def find_one_query(database, collection, query):
   return coll.find_one(query)
 
 
-def aggregate_query(database, collection, index, path, query_vector, projection, numCandidates=100, limit=10):
+def aggregate_query(database, collection, index, path, query_vector, projection=None, numCandidates=100, limit=10):
   
   if projection is None:
     projection = {
@@ -69,18 +72,20 @@ def aggregate_query(database, collection, index, path, query_vector, projection,
     }
   else:
     projection['score'] = {'$meta': 'vectorSearchScore'}
+
   pipe = [
       {
         '$vectorSearch': {
           'index': index,
             'path': path,
             'queryVector': query_vector,
-          'numCandidates': numCandidates,
-          'limit': limit
+            'numCandidates': numCandidates,
+            'limit': limit
         }
       }, {
         '$project': projection
       }
     ]
+  print("Pipeline query", pipe)
   coll = client[database][collection]
   return coll.aggregate(pipe)
