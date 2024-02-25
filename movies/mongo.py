@@ -1,8 +1,15 @@
 import pymongo
 from embedding import get_model
+import streamlit as st
 
-# connect to your Atlas cluster
-client = pymongo.MongoClient("mongodb+srv://mongo:mongo4kent@cluster0.lqtsseb.mongodb.net/")
+
+# Initialize connection.
+# Uses st.cache_resource to only run once.
+@st.cache_resource
+def init_connection():
+    return pymongo.MongoClient(st.secrets["mongo_srv"])
+
+client = init_connection()
 
 # create a new embeddings and set the field in the document
 def create_embedding(database, collection):

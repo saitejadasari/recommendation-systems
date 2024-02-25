@@ -1,7 +1,7 @@
 from embedding import get_model
 from mongo import aggregate_query, find_query, create_embedding, create_vector_index, count_documents
 import streamlit as st
-
+import pandas as pd
 
 def count_movies():
     return count_documents('sample_mflix', 'movies', {})
@@ -40,8 +40,10 @@ def main():
     if st.button('Submit'):
         movies = recommend_movies(movie_name)
         # movies = search_movie(movie_name)
+        df = pd.DataFrame(movies)
         print(movies)
-        st.write(movies)
+        # st.write(movies)
+        st.dataframe(df)
     # print(movies)
 
     pass
